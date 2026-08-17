@@ -1,28 +1,34 @@
 # Organizador-Respaldos-Windows
 
-Automatización en Python para ordenar archivos de Adobe InDesign producidos durante una jornada nocturna. El caso de uso principal es una carpeta de trabajo que recibe archivos desde las 19:00 del día anterior hasta la madrugada del día de cierre; a las 07:00, si han pasado al menos 2 horas sin actividad, los `.indd` elegibles se mueven a `respaldo/<mes>/<día>`.
+Automatización en Python para organizar y respaldar archivos en Windows según reglas de fecha, tipo y nombre. En la configuración actual está orientada a una jornada nocturna: revisa una carpeta de trabajo a las 07:00 y, si han pasado al menos 2 horas sin actividad, mueve los archivos `.indd` elegibles a `respaldo/<mes>/<día>`.
 
-> La demo React usa exclusivamente datos ficticios y **no puede mover archivos reales**.
+## Cómo funciona
 
-![Vista de la demo](docs/demo-preview.svg)
-
-## Qué resuelve
-
-Ejemplo ficticio para un cierre del **17-08-2026**:
+El proceso trabaja directamente con el sistema de archivos de Windows:
 
 ```text
-C:\Demo\Paginas diario\
-├── Portada_A.indd        ← modificado 17-08 04:02
-├── Economia_03.indd      ← modificado 17-08 03:41
-├── Avisos.pdf            ← se ignora
-└── respaldo\
-    └── agosto\
-        └── 17\
-            ├── Portada_A.indd
-            └── Economia_03.indd
+ANTES                                      DESPUÉS
+
+Paginas diario\                            respaldo\agosto\17\
+├── Portada_A.indd      ───────────────▶   ├── Portada_A.indd
+├── Economia_03.indd    ───────────────▶   └── Economia_03.indd
+├── Avisos.pdf          se ignora
+└── Notas.txt           se ignora
+
+                 ≥ 2 horas sin actividad
 ```
 
-La jornada considerada va desde las **19:00 del día anterior hasta las 06:59 del día de cierre**. Solo se procesan archivos `.indd` del nivel principal de `SOURCE_FOLDER`; la carpeta de respaldo se excluye del análisis y no se recorren subcarpetas.
+Para un cierre del **17-08-2026**, la ventana de trabajo comienza el 16 a las 19:00 y termina el 17 a las 06:59. Si la última modificación fue a las 04:00, al ejecutarse a las 07:00 ya se cumple la regla de inactividad.
+
+La configuración actual procesa `.indd` del nivel principal de `SOURCE_FOLDER`. `BACKUP_FOLDER` se excluye para evitar que el propio respaldo cuente como actividad.
+
+## Arquitectura
+
+- `src/main.py`: punto de entrada, argumentos, logging y códigos de salida.
+- `src/config.py`: carga `SOURCE_FOLDER`, `BACKUP_FOLDER` y `LOG_LEVEL` desde `.env`.
+- `src/file_mover.py`: calcula la jornada, comprueba la inactividad, filtra archivos, construye el destino y realiza los movimientos.
+- `scripts/setup_task.ps1`: registra la ejecución diaria en el Programador de tareas de Windows.
+- `tests/`: pruebas automatizadas con carpetas temporales.
 
 ## Instalación
 
@@ -37,15 +43,17 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-## Configuración de `.env`
+## Configuración
+
+Las rutas locales se mantienen fuera del código mediante `.env`:
 
 ```env
-SOURCE_FOLDER=C:\Ruta\Ficticia\Paginas diario
-BACKUP_FOLDER=C:\Ruta\Ficticia\Paginas diario\respaldo
+SOURCE_FOLDER=C:\Ruta\De\Trabajo\Paginas diario
+BACKUP_FOLDER=C:\Ruta\De\Trabajo\Paginas diario\respaldo
 LOG_LEVEL=INFO
 ```
 
-Usa tus rutas locales únicamente en `.env`. Ese archivo está ignorado por Git y nunca debe publicarse.
+`.env` está incluido en `.gitignore` y no debe publicarse.
 
 ## Ejecución manual
 
@@ -53,7 +61,7 @@ Usa tus rutas locales únicamente en `.env`. Ese archivo está ignorado por Git 
 python src/main.py
 ```
 
-El script valida el origen, crea el respaldo cuando corresponde, comprueba que hayan pasado al menos 120 minutos desde la última actividad del nivel principal y procesa cada archivo de forma independiente. Si un destino ya existe, genera un nombre seguro como `pagina (1).indd` sin sobrescribir nada.
+El proceso valida el origen, crea el respaldo cuando hace falta, comprueba la última actividad y procesa cada archivo de forma independiente. Si un nombre ya existe en el destino, utiliza un sufijo como `pagina (1).indd` en lugar de sobrescribirlo.
 
 ### Dry-run
 
@@ -61,25 +69,25 @@ El script valida el origen, crea el respaldo cuando corresponde, comprueba que h
 python src/main.py --dry-run
 ```
 
-Muestra qué archivos se moverían, pero no crea la carpeta de fecha ni mueve archivos.
+Realiza todas las comprobaciones y registra qué movimientos corresponderían sin modificar los archivos.
 
-### Probar una fecha ficticia
+### Probar otra fecha de cierre
 
 ```powershell
 python src/main.py --date 17-08-2026 --dry-run
 ```
 
-`--date` representa la **fecha de cierre**. Para `17-08-2026`, la ventana elegible empieza el 16 a las 19:00 y termina el 17 a las 06:59.
+`--date` permite reproducir el cálculo de una jornada determinada sin cambiar la fecha del equipo.
 
 ## Programador de tareas de Windows
 
-El script `scripts/setup_task.ps1` registra una tarea diaria a las **07:00** usando rutas absolutas y el usuario actual. No solicita privilegios de administrador.
+`scripts/setup_task.ps1` registra una tarea diaria a las **07:00** usando rutas absolutas y el usuario actual.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\setup_task.ps1
 ```
 
-Comprobar la tarea:
+Comprobarla:
 
 ```powershell
 Get-ScheduledTask -TaskName "Organizador-Respaldos-Windows"
@@ -98,7 +106,17 @@ Eliminarla:
 powershell -ExecutionPolicy Bypass -File .\scripts\setup_task.ps1 -Remove
 ```
 
-Una ejecución diaria a las 07:00 garantiza que el movimiento solo ocurra **si ya existen 2 horas o más sin actividad**. Si se necesitara ejecutar lo más cerca posible del instante exacto de las 2 horas, la tarea tendría que dispararse con mayor frecuencia.
+La ejecución a las 07:00 exige que hayan transcurrido **al menos 120 minutos sin actividad**. No presupone que el movimiento ocurra exactamente dos horas después del último cambio.
+
+## Reglas de movimiento
+
+- `work_window_for()`: calcula el inicio y fin de la jornada.
+- `latest_source_activity()`: obtiene la modificación más reciente del origen excluyendo el respaldo.
+- `source_is_idle()`: comprueba el periodo mínimo sin actividad.
+- `candidate_indesign_files()`: selecciona los `.indd` pertenecientes a la jornada.
+- `dated_destination()`: genera la estructura `mes/día`.
+- `safe_destination()`: evita sobrescrituras mediante sufijos numéricos.
+- `process_backup()`: coordina el proceso y continúa si un elemento falla.
 
 ## Pruebas
 
@@ -106,46 +124,26 @@ Una ejecución diaria a las 07:00 garantiza que el movimiento solo ocurra **si y
 pytest -q
 ```
 
-Las pruebas usan carpetas temporales y cubren: filtro `.indd`, ventana nocturna, inactividad mínima, `--dry-run`, origen inexistente y nombres de destino sin sobrescritura.
-
-## Demo React
-
-```powershell
-cd demo
-npm install
-npm run dev
-```
-
-La interfaz permite cambiar una fecha ficticia, alternar entre dry-run y ejecución simulada, ver archivos elegibles y revisar un historial visual. Ninguna acción del navegador accede al sistema de archivos local.
-
-### GitHub Pages
-
-El workflow `.github/workflows/pages.yml` compila `demo/` y despliega la demo cuando cambia `main`. En GitHub, activa **Settings → Pages → Source: GitHub Actions**.
-
-Una vez habilitado Pages, la URL esperada para este repositorio es:
-
-`https://andrefnx.github.io/Project_Manager/`
+Las pruebas utilizan directorios temporales y cubren el filtro `.indd`, la ventana nocturna, las 2 horas de inactividad, `--dry-run`, origen inexistente y nombres de destino seguros.
 
 ## Códigos de salida
 
-- `0`: ejecución completada sin errores de movimiento.
-- `1`: uno o más elementos fallaron, pero el resto continuó procesándose.
+- `0`: ejecución completada sin errores.
+- `1`: uno o más elementos fallaron, pero el resto continuó.
 - `2`: configuración inválida o carpeta de origen inexistente.
 - `3`: error fatal inesperado.
 
 ## Solución de errores
 
-**No se mueve nada aunque hay `.indd`:** comprueba la hora de modificación. Debe caer entre las 19:00 del día anterior y las 06:59 de la fecha de cierre, y la carpeta debe llevar al menos 2 horas sin actividad.
+**No se mueve ningún `.indd`:** comprueba que la modificación pertenezca a la ventana de la jornada y que hayan transcurrido al menos 2 horas sin actividad.
 
-**La tarea programada usa otro Python:** vuelve a registrarla indicando el ejecutable del entorno virtual:
+**La tarea usa otro Python:** vuelve a registrarla indicando el ejecutable del entorno virtual:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\setup_task.ps1 -PythonExe ".\.venv\Scripts\python.exe"
 ```
 
-**El destino ya contiene un archivo con el mismo nombre:** no se sobrescribe. Se usa un sufijo numérico seguro.
-
-**La demo no aparece en Pages:** verifica que Pages use GitHub Actions y revisa el workflow `Deploy demo to GitHub Pages`.
+**Ya existe un archivo con el mismo nombre:** no se sobrescribe; se genera automáticamente un nombre con sufijo numérico.
 
 ## Estructura
 
@@ -157,8 +155,6 @@ src/
 tests/
 scripts/
   setup_task.ps1
-demo/
-docs/
 .env.example
 requirements.txt
 README.md
