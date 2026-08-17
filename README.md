@@ -23,8 +23,8 @@ La configuración actual procesa `.indd` del nivel principal de `SOURCE_FOLDER`.
 Requiere Python 3.11 o superior.
 
 ```powershell
-git clone https://github.com/Andrefnx/Project_Manager.git
-cd Project_Manager
+git clone https://github.com/Andrefnx/Windows_File_Backup.git
+cd Windows_File_Backup
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
