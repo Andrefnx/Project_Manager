@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <rect width="1200" height="600" fill="#f6f6f6"/>
+  <style>
+    text{font-family:"Segoe UI",Arial,sans-serif;fill:#202020}.muted{fill:#666}.small{font-size:18px}.body{font-size:22px}.title{font-size:26px;font-weight:600}.win{fill:#fff;stroke:#c9c9c9;stroke-width:2}.bar{fill:#fafafa}.line{stroke:#e5e5e5;stroke-width:1}.folder{fill:#ffc83d;stroke:#e4a900;stroke-width:2}.indd{fill:#e5005a}.pdf{fill:#e64545}.txt{fill:#888}.arrow{stroke:#1677d2;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;fill:none}
+  </style>
+  <rect x="40" y="45" width="500" height="470" rx="12" class="win"/>
+  <rect x="40" y="45" width="500" height="58" rx="12" class="bar"/>
+  <rect x="40" y="90" width="500" height="13" class="bar"/>
+  <path d="M68 64h26l8 8h35v23H68z" class="folder"/>
+  <text x="150" y="84" class="title">Paginas diario</text>
+  <text x="68" y="142" class="small muted">Nombre</text><text x="355" y="142" class="small muted">Fecha de modificación</text>
+  <line x1="60" y1="157" x2="520" y2="157" class="line"/>
+  <rect x="68" y="183" width="26" height="26" rx="4" class="indd"/><text x="74" y="202" font-size="15" fill="white">Id</text><text x="110" y="203" class="body">Portada_A.indd</text><text x="355" y="203" class="small">17/08/2026 04:02</text>
+  <rect x="68" y="235" width="26" height="26" rx="4" class="indd"/><text x="74" y="254" font-size="15" fill="white">Id</text><text x="110" y="255" class="body">Economia_03.indd</text><text x="355" y="255" class="small">17/08/2026 03:41</text>
+  <rect x="68" y="287" width="26" height="26" rx="3" class="pdf"/><text x="72" y="306" font-size="12" fill="white">PDF</text><text x="110" y="307" class="body">Avisos.pdf</text><text x="355" y="307" class="small">16/08/2026 22:15</text>
+  <rect x="68" y="339" width="26" height="26" rx="3" class="txt"/><text x="75" y="358" font-size="14" fill="white">T</text><text x="110" y="359" class="body">Notas.txt</text><text x="355" y="359" class="small">16/08/2026 21:03</text>
+  <path d="M68 392h25l8 8h35v24H68z" class="folder"/><text x="150" y="414" class="body">Imagenes</text><text x="355" y="414" class="small">16/08/2026 20:20</text>
+  <text x="68" y="485" class="small muted">5 elementos</text>
+  <path d="M585 265h90m0 0-25-25m25 25-25 25" class="arrow"/>
+  <text x="575" y="330" class="title">2h+</text><text x="552" y="360" class="body">sin actividad</text>
+  <rect x="720" y="45" width="440" height="470" rx="12" class="win"/>
+  <rect x="720" y="45" width="440" height="58" rx="12" class="bar"/>
+  <rect x="720" y="90" width="440" height="13" class="bar"/>
+  <path d="M748 64h26l8 8h35v23h-69z" class="folder"/>
+  <text x="830" y="84" class="title">17</text>
+  <text x="748" y="132" class="small muted">respaldo  ›  agosto  ›  17</text>
+  <text x="748" y="178" class="small muted">Nombre</text><text x="1000" y="178" class="small muted">Fecha</text>
+  <line x1="740" y1="193" x2="1140" y2="193" class="line"/>
+  <rect x="748" y="220" width="26" height="26" rx="4" class="indd"/><text x="754" y="239" font-size="15" fill="white">Id</text><text x="790" y="240" class="body">Portada_A.indd</text><text x="1000" y="240" class="small">17/08 07:00</text>
+  <rect x="748" y="272" width="26" height="26" rx="4" class="indd"/><text x="754" y="291" font-size="15" fill="white">Id</text><text x="790" y="292" class="body">Economia_03.indd</text><text x="1000" y="292" class="small">17/08 07:00</text>
+  <text x="748" y="485" class="small muted">2 elementos</text>
+  <circle cx="390" cy="555" r="12" fill="#2ea043"/><path d="M384 555l5 5 9-11" stroke="white" stroke-width="3" fill="none"/>
+  <text x="410" y="562" class="body">2 archivos movidos</text>
+  <circle cx="700" cy="555" r="10" fill="#9aa0a6"/><text x="720" y="562" class="body">otros elementos no coinciden</text>
+</svg>
