@@ -4,19 +4,7 @@ Automatización en Python para organizar y respaldar archivos en Windows según 
 
 ## Cómo funciona
 
-El proceso trabaja directamente con el sistema de archivos de Windows:
-
-```text
-ANTES                                      DESPUÉS
-
-Paginas diario\                            respaldo\agosto\17\
-├── Portada_A.indd      ───────────────▶   ├── Portada_A.indd
-├── Economia_03.indd    ───────────────▶   └── Economia_03.indd
-├── Avisos.pdf          se ignora
-└── Notas.txt           se ignora
-
-                 ≥ 2 horas sin actividad
-```
+![Flujo de archivos en Windows](docs/windows-file-flow.svg)
 
 Para un cierre del **17-08-2026**, la ventana de trabajo comienza el 16 a las 19:00 y termina el 17 a las 06:59. Si la última modificación fue a las 04:00, al ejecutarse a las 07:00 ya se cumple la regla de inactividad.
 
@@ -155,6 +143,8 @@ src/
 tests/
 scripts/
   setup_task.ps1
+docs/
+  windows-file-flow.svg
 .env.example
 requirements.txt
 README.md
