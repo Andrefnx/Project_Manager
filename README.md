@@ -1,4 +1,4 @@
-# Organizador-Respaldos-Windows
+# Organizador de archivos y respaldos para Windows
 
 Automatización en Python para organizar y respaldar archivos en Windows según reglas de fecha, tipo y nombre. En la configuración actual está orientada a una jornada nocturna: revisa una carpeta de trabajo a las 07:00 y, si han pasado al menos 2 horas sin actividad, mueve los archivos `.indd` elegibles a `respaldo/<mes>/<día>`.
 
